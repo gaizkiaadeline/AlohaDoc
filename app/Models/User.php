@@ -12,6 +12,8 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
+    protected $table = 'users';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -20,6 +22,9 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'jenis_kelamin',
+        'role',
+        'telephone',
         'password',
     ];
 
@@ -33,12 +38,23 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
+    public function hasRole($role){
+        if($this->role == $role){
+            return true;
+        }
+
+        return false;
+    }
+
+    public function doctorSchedules(){
+        return $this->hasMany(DoctorSchedule::class, 'doctor_id', 'id');
+    }
+
+    public function consultations(){
+        return $this->hasMany(Consultation::class, 'patient_id', 'id');
+    }
+
+    public function chats(){
+        return $this->hasMany(Chat::class, 'user_id', 'id');
+    }
 }

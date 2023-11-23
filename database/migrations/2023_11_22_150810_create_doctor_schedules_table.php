@@ -13,15 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('doctor_schedules', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->enum('jenis_kelamin', ['Pria', 'Wanita']);
-            $table->enum('role', ['admin', 'patient', 'doctor']);
-            $table->string('telephone', 20);
-            $table->string('password');
-            $table->rememberToken();
+            $table->foreignId('doctor_id')->references('id')->on('users');
+            $table->foreignId('schedule_id')->references('id')->on('schedules');
             $table->timestamps();
         });
     }
@@ -33,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('doctor_schedules');
     }
 };

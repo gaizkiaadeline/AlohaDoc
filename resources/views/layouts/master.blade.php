@@ -15,9 +15,6 @@
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.css" />
 
-    <!-- SweetAlert CSS -->
-    <link rel="stylesheet" href="{{ asset('vendor/sweetalert2/sweetalert2.min.css') }}">
-
     <!-- Select2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     
@@ -29,10 +26,13 @@
     @if(isset($success))
         <x-alertsuccess content="{{ $success }}"/>
     @endif
-    @if(count($errors) > 0 || isset($err))
+    @if(count($errors) > 0 || isset($err) || isset($error))
         @php
             if(count($errors) > 0){
                 $err = $errors->all()[0];
+            }
+            else if(isset($error)){
+                $err = $error;
             }
         @endphp
         <x-alert content="{{ $err }}"/>
@@ -55,7 +55,7 @@
 <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
 
 <!-- SweetAlert JS -->
-<script src="{{ asset('vendor/sweetalert/sweetalert.all.js') }}"></script>
+<script src="{{ asset('assets/js/sweetalert.all.js') }}"></script>
 
 <!-- Select2 JS -->
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>

@@ -28,5 +28,6 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('checkRole:admin')->group(function () {
         Route::get('/user', [UserController::class, 'index'])->name('user');
+        Route::get('/changeStatus/{user}', [UserController::class, 'changeStatus'])->name('user.activate');
     });
 });

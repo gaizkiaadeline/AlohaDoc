@@ -21,6 +21,7 @@ return new class extends Migration
             $table->enum('role', ['admin', 'patient', 'doctor']);
             $table->string('telephone', 20);
             $table->string('password');
+            $table->enum('is_active', ['Active', 'Not Active']);
             $table->rememberToken();
             $table->timestamps();
         });

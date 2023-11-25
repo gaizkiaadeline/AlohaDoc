@@ -7,9 +7,11 @@
         <h2>List Konsultasi</h2>
         
         <div>
+            @if(auth()->user()->role == 'patient')
             <a href="#" class="btn btn-primary mb-3">
                 <span class="fas fa-plus"></span>&nbsp;&nbsp;Request Konsultasi
             </a>
+            @endif
         </div>
     </div>
 @endsection

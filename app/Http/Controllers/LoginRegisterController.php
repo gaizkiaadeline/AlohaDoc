@@ -51,7 +51,8 @@ class LoginRegisterController extends Controller
                 'password' => Hash::make($request->password),
                 'jenis_kelamin' => $request->jenis_kelamin,
                 'role' => $request->role,
-                'telephone' => $request->telephone
+                'telephone' => $request->telephone,
+                'is_active' => $request->role == 'doctor' ? 'Not Active' : 'Active'
             ]);
 
             DB::commit();
@@ -59,7 +60,12 @@ class LoginRegisterController extends Controller
             return redirect('/')->with('err', 'Failed to register, please try again');
         }
 
-        $success = 'Registered Succesfully';
+        if($request->role == 'patient'){
+            $success = 'Akun berhasil terdaftar! Mohon login untuk mengakses fitur!';
+        }
+        else{
+            $success = 'Akun berhasil terdaftar! Mohon tunggu admin untuk mengaktifkan akun Anda!';
+        }
 
         return redirect('/')->with('success', $success);
     }

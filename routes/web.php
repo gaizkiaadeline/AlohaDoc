@@ -33,6 +33,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/cancel/{consultation}', [ConsultationController::class, 'cancel'])->name('consultation.cancel');
         Route::get('/do/{consultation}', [ConsultationController::class, 'do'])->name('consultation.do');
         Route::get('/activate/{consultation}/{setActive}', [ConsultationController::class, 'activateRequest'])->name('consultation.activate');
+        Route::get('/createRecipe/{consultation}', [ConsultationController::class, 'createRecipe'])->name('consultation.create-recipe');
+        Route::post('/storeRecipe/{consultation}', [ConsultationController::class, 'storeRecipe'])->name('consultation.store-recipe');
+        Route::get('/printRecipe/{consultation}', [ConsultationController::class, 'printRecipe'])->name('consultation.print-recipe');
     });
 
     Route::middleware('checkRole:admin')->group(function () {

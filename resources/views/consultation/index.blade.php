@@ -109,6 +109,11 @@
             window.location.href = routeUrl
         })
 
+        $(document).on('click', '.Recipe', function(){
+            let routeUrl = $(this).attr("href")
+            window.location.href = routeUrl
+        })
+
         //Inisialisasi Datatable
         initConsultationDatatable();
 

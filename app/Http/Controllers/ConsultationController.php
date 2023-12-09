@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Mpdf\Mpdf;
 use Yajra\DataTables\DataTables;
 
 class ConsultationController extends Controller implements StatusInterface
@@ -119,7 +120,7 @@ class ConsultationController extends Controller implements StatusInterface
                         }
                     }
                     
-                    if(in_array(Auth::user()->role, ['patient', 'doctor']) && $currentDate->diffInDays($p['consultation_date']) <= 0 && $currentDateTime >= $p['consultation_start'] && in_array($p['status'], [self::STATUS_BOOKED_TEXT, self::STATUS_KONSULTASI_TEXT])){
+                    if(in_array(Auth::user()->role, ['patient', 'doctor']) && $currentDate->diffInDays($p['consultation_date']) <= 0 && $currentDateTime >= $p['consultation_start'] && in_array($p['status'], [self::STATUS_BOOKED_TEXT, self::STATUS_KONSULTASI_TEXT, self::STATUS_MENUNGGU_RESEP_TEXT, self::STATUS_SELESAI_TEXT])){
                         array_push($returnedValue, [
                             "route" => route('consultation.do', ['consultation' => $p['id']]),
                             "attr_id" => $p['id'],
@@ -127,6 +128,27 @@ class ConsultationController extends Controller implements StatusInterface
                             "label" => 'Konsultasi',
                             "btnStyle" => 'success',
                             "btnClass" => 'Consultation'
+                        ]);
+                    }
+
+                    if(Auth::user()->role == 'doctor' && in_array($p['status'], [self::STATUS_MENUNGGU_RESEP_TEXT, self::STATUS_SELESAI_TEXT])){
+                        array_push($returnedValue, [
+                            "route" => route('consultation.create-recipe', ['consultation' => $p['id']]),
+                            "attr_id" => $p['id'],
+                            "icon" => 'fas fa-fw fa-tablets',
+                            "label" => 'Resep Obat',
+                            "btnStyle" => 'secondary',
+                            "btnClass" => 'Recipe'
+                        ]);
+                    }
+                    else if(Auth::user()->role == 'patient' && $p['status'] == self::STATUS_SELESAI_TEXT){
+                        array_push($returnedValue, [
+                            "route" => route('consultation.print-recipe', ['consultation' => $p['id']]),
+                            "attr_id" => $p['id'],
+                            "icon" => 'fas fa-fw fa-file-pdf',
+                            "label" => 'Cetak Obat',
+                            "btnStyle" => 'secondary',
+                            "btnClass" => 'Recipe'
                         ]);
                     }
 
@@ -296,6 +318,42 @@ class ConsultationController extends Controller implements StatusInterface
         }
 
         return redirect()->route('consultation')->with('success', $success);
+    }
+
+    public function createRecipe(Consultation $consultation){
+        return view('consultation.create-recipe', compact('consultation'));
+    }
+
+    public function storeRecipe(Request $request, Consultation $consultation){
+        DB::beginTransaction();
+        try{
+            $consultation->recipe = $request->recipe;
+            $consultation->status = self::STATUS_SELESAI;
+            $consultation->update();
+
+            DB::commit();
+        } catch(\Exception $err){
+            DB::rollBack();
+            LogError::insertLogError($err->getMessage());
+            return redirect()->route('consultation')->with('error', 'Gagal menambah/mengubah resep, mohon coba lagi!');
+        }
+
+        return redirect()->route('consultation')->with('success', 'Berhasil menambah/mengubah resep!');
+    }
+
+    public function printRecipe(Consultation $consultation){
+        $pdf = new Mpdf([
+            'margin_top' => 10,
+            'margin_bottom' => 20,
+            'margin_left' => 18,
+            'margin_right' => 18,
+        ]);
+
+        $pdf->SetTitle('Resep Obat - ' . $consultation->consultation_date . '.pdf');
+
+        $pdf->WriteHTML(view('consultation.pdf-recipe', compact('consultation')));
+
+        return $pdf->Output('Resep Obat - ' . $consultation->consultation_date . '.pdf', 'I');
     }
 
     public function getSession(Request $request) {

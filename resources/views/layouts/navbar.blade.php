@@ -15,6 +15,10 @@
           <li class="nav-item" style="margin-left: 1rem;">
             <a class="nav-link active" href="/user">User Management</a>
           </li>
+          @elseif(auth()->user()->role == 'doctor')
+          <li class="nav-item" style="margin-left: 1rem;">
+            <a class="nav-link active" href="/schedule">Jadwal</a>
+          </li>
           @endif
         </ul>
         <form action="{{ route('logout') }}" method="POST">

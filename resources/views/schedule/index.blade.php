@@ -1,23 +1,14 @@
 @extends('layouts/master')
 
-@section('title', 'Konsultasi - alohadoc')
+@section('title', 'Jadwal - alohadoc')
 
 @section('content')
     <div class="content_header">
-        <h2>List Konsultasi</h2>
-        
-        <div>
-            @if(auth()->user()->role == 'patient')
-            <a href="#" class="btn btn-primary mb-3" id="addConsultation" data-bs-toggle="modal" data-bs-target="#modalAddConsultation">
-                <span class="fas fa-plus"></span>&nbsp;&nbsp;&nbsp;Request Konsultasi
-            </a>
-            @endif
-        </div>
+        <h2>List Jadwal</h2>
     </div>
     <div>
-        @include('consultation.__table')
+        @include('schedule.__table')
     </div>
-    @include('consultation.modals.add')
 @endsection
 
 @section('extra-css')
@@ -27,7 +18,7 @@
         display: flex;
         justify-content: space-between;
     }
-    
+
     .select2-container .select2-selection--single {
         height: calc(2.25rem + 2px);
         border: 1px solid #ced4da !important;
@@ -54,47 +45,21 @@
         top: 50%;
         width: 0;
     }
-
-    #specialistIdContainer .select2-container{
-        width: 100% !important;
-    }
-    #sessionIdContainer .select2-container{
-        width: 100% !important;
-    }
-
 </style>
 @endsection
 
 @section('extra-js')
 <script>
     $(document).ready(function() {
-        $(document).on('click', '.Cancel', function(){
-            swal.fire({
-                title: 'Apakah anda yakin?',
-                text: "Request konsultasi akan dibatalkan!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Cancel Request',
-                reverseButtons: true
-                }).then((result) => {
-                if (result.isConfirmed) {
-                    let routeUrl = $(this).attr("href")
-                    window.location.href = routeUrl
-                }
-            });
-        })
-
         $(document).on('click', '.Activate', function(){
             swal.fire({
                 title: 'Apakah anda yakin?',
-                text: "Request konsultasi akan dilanjutkan sesuai status yang dipilih!",
+                text: "Status jadwal anda akan diganti!",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
                 cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Ganti Status Request',
+                confirmButtonText: 'Ganti Status',
                 reverseButtons: true
                 }).then((result) => {
                 if (result.isConfirmed) {
@@ -104,86 +69,12 @@
             });
         })
 
-        $(document).on('click', '.Consultation', function(){
-            let routeUrl = $(this).attr("href")
-            window.location.href = routeUrl
-        })
-
         //Inisialisasi Datatable
-        initConsultationDatatable();
-
-        $('#specialist').select2({
-            theme: "bootstrap",
-            dropdownParent: $('#modalAddConsultation'),
-            minimumResultsForSearch: 1
-        })
-
-        $('#session').select2({
-            theme: "bootstrap",
-            dropdownParent: $('#modalAddConsultation'),
-            ajax: {
-                url: "{{ route('consultation.get-session') }}",
-                // minimumResultsForSearch: -1,
-                data: function (params) {
-                    return {
-                        search: params.term,
-                        specialist: $('#specialist').val(),
-                        date : $('#date').val()
-                    }
-                },
-                processResults: function (data) {
-                    if(data.length == 0){
-                        $('#warningDate').text('Tidak ada sesi yang tersedia untuk spesialis dan tanggal yang Anda pilih!')
-                    }
-                    else{
-                        $('#warningDate').text('')
-                    }
-                    
-                    return data
-                }
-            },
-        });
-
-        $('#sessionIdForm').css('display', 'none')
-
-        $('#specialist').on('change', function(){
-            if($(this).val() == '-'){
-                $('#sessionIdForm').css('display', 'none')
-            }
-            else{
-                if($('#date').val()){
-                    $('#sessionIdForm').css('display', 'block')
-                }
-            }
-        })
-
-        $('#date').on('change', function(){
-            if(!$(this).val()){
-                $('#sessionIdForm').css('display', 'none')
-            }
-            else{
-                if($('#specialist').val() != '-'){
-                    $('#sessionIdForm').css('display', 'block')
-                }
-
-                $('#session').val(null).trigger('change');
-            }
-        })
-
-        $('#date').on('input', function () {
-            let selectedDate = $(this).val();
-            if (selectedDate < new Date().toISOString().split('T')[0]) {
-                $(this).val(new Date().toISOString().split('T')[0])
-                $('#warningDate').text('Tanggal hanya bisa diisi dimulai dari hari ini!')
-            }
-            else{
-                $('#warningDate').text('');
-            }
-        });
+        initScheduleDatatable();
     })
 
-    function initConsultationDatatable(){
-        let table = $('#consultation-list').DataTable({
+    function initScheduleDatatable(){
+        let table = $('#schedule-list').DataTable({
             "processing": true,
             "serverSide": true,
             "ajax": "{{ route($route) }}",
@@ -193,11 +84,8 @@
                     "targets": 0
                 },
                 {
-                    "data": "consultation_date",
-                    "name": "consultation_date.timestamp",
-                    "render": function(data, type, row, meta) {
-                        return row.consultation_date.display
-                    },
+                    "data": "day",
+                    "name": "day",
                     "targets": 1
                 },
                 {
@@ -206,28 +94,13 @@
                     "targets": 2
                 },
                 {
-                    "data": "name",
-                    "name": "name",
+                    "data": "status",
+                    "name": "status",
                     "targets": 3
                 },
                 {
-                    "data": "specialist_id",
-                    "name": "specialist_id",
-                    "targets": 4
-                },
-                {
-                    "data": "status",
-                    "name": "status",
-                    "targets": 5
-                },
-                {
-                    "data": "recipe_avail",
-                    "name": "recipe_avail",
-                    "targets": 6
-                },
-                {
                     "data": 'actions',
-                    "targets": 7,
+                    "targets": 4,
                     "render": function(data, type, row, meta) {
                         if (data !== '') {
                             let actionContent = `<div style='display: flex; gap:0.5em;'>`;
@@ -253,7 +126,7 @@
                 {
                     "searchable": false,
                     "orderable": false,
-                    "targets": [6]
+                    "targets": [4]
                 }
             ],
             order: [[1, 'desc']],
@@ -280,13 +153,8 @@
 
                             if (name == 'status') {
                                 let statusList = {
-                                    'Proses Request' : 'Proses Request',
-                                    'Booked' : 'Booked',
-                                    'Request Dibatalkan' : 'Request Dibatalkan',
-                                    'Request Ditolak' : 'Request Ditolak',
-                                    'Konsultasi Aktif' : 'Konsultasi Aktif',
-                                    'Menunggu Resep' : 'Menunggu Resep',
-                                    'Konsultasi Selesai' : 'Konsultasi Selesai'
+                                    'Terjadwal': 'Terjadwal',
+                                    'Tidak Aktif': 'Tidak Aktif'
                                 }
 
                                 let div = $(`<div id="wrap-status" class="form-group"></div>`).appendTo($(column.footer()).empty())

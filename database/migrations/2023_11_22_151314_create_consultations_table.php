@@ -17,8 +17,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('patient_id')->references('id')->on('users');
             $table->foreignId('doctor_schedule_id')->references('id')->on('doctor_schedules');
-            $table->enum('status', ['Request Baru', 'Ditolak', 'Dibatalkan', 'Diterima', 'Proses', 'Selesai']);
-            $table->text('recipe');
+            $table->integer('status');
+            $table->text('recipe')->nullable();
+            $table->date('consultation_date');
             $table->timestamps();
         });
     }

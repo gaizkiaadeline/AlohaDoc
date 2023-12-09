@@ -1,4 +1,4 @@
-<div class="modal hide fade" tabindex="-1" id="modalRegiter">
+<div class="modal hide fade" id="modalRegiter">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -29,6 +29,17 @@
                             <option value="patient" selected>Pasien</option>
                             <option value="doctor">Dokter</option>
                         </select>
+                    </div>
+                    <div class="form-group mb-3" id="specialistIdForm">
+                        <label for="specialist">Spesialis:</label>
+                        <div id="specialistIdContainer">
+                            <select class="form-control" name="specialist" id="specialist">
+                                <option value="-" selected>- Pilih Spesialis Dokter -</option>
+                                @foreach($specialists as $specialist)
+                                    <option value='{{ $specialist->id }}'>{{ $specialist->specialist }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
                     <div class="form-group mb-3">
                         <label for="telephone">Nomor Telepon:</label>

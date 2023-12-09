@@ -15,7 +15,8 @@ class Consultation extends Model
         'patient_id',
         'doctor_schedule_id',
         'status',
-        'recipe'
+        'recipe',
+        'consultation_date'
     ];
 
     public function user(){

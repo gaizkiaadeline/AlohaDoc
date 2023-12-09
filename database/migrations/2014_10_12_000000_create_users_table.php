@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('telephone', 20);
             $table->string('password');
             $table->enum('is_active', ['Active', 'Not Active']);
+            $table->foreignId('specialist_id')->nullable()->references('id')->on('doctors');
             $table->rememberToken();
             $table->timestamps();
         });

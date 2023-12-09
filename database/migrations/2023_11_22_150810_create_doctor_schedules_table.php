@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('doctor_id')->references('id')->on('users');
             $table->foreignId('schedule_id')->references('id')->on('schedules');
+            $table->integer('isActive');
             $table->timestamps();
         });
     }

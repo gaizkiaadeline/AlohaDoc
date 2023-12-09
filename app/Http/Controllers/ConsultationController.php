@@ -259,8 +259,12 @@ class ConsultationController extends Controller implements StatusInterface
     public function do(Consultation $consultation) {
         if(Carbon::now() > $consultation->doctor_schedule->schedule->session->end_time){
             $consultation->status = self::STATUS_MENUNGGU_RESEP;
-            $consultation->update();
         }
+        else{
+            $consultation->status = self::STATUS_KONSULTASI;
+        }
+        
+        $consultation->update();
 
         return view('consultation.chat', compact('consultation'));
     }

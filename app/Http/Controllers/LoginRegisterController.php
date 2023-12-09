@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
+use App\Models\Doctor;
+use App\Models\LogError;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,7 +19,9 @@ class LoginRegisterController extends Controller
         $error = session('error') ?? null;
         $err = session('err') ?? null;
 
-        return view('landing', compact('success', 'error', 'err'));
+        $specialists = Doctor::all();
+
+        return view('landing', compact('success', 'error', 'err', 'specialists'));
     }
 
     public function loginAdmin(){
@@ -45,6 +49,12 @@ class LoginRegisterController extends Controller
     public function registerProcess(RegisterRequest $request){
         DB::beginTransaction();
         try{
+            $specialistId = null;
+
+            if($request->specialist != '-'){
+                $specialistId = $request->specialist;
+            }
+            
             User::create([
                 'name' => $request->name,
                 'email' => $request->email,
@@ -52,11 +62,14 @@ class LoginRegisterController extends Controller
                 'jenis_kelamin' => $request->jenis_kelamin,
                 'role' => $request->role,
                 'telephone' => $request->telephone,
-                'is_active' => $request->role == 'doctor' ? 'Not Active' : 'Active'
+                'is_active' => $request->role == 'doctor' ? 'Not Active' : 'Active',
+                'specialist_id' => $specialistId
             ]);
 
             DB::commit();
         } catch(\Exception $err){
+            DB::rollBack();
+            LogError::insertLogError($err->getMessage());
             return redirect('/')->with('err', 'Failed to register, please try again');
         }
 

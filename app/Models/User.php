@@ -26,6 +26,7 @@ class User extends Authenticatable
         'role',
         'telephone',
         'password',
+        'specialist_id'
     ];
 
     /**
@@ -56,5 +57,9 @@ class User extends Authenticatable
 
     public function chats(){
         return $this->hasMany(Chat::class, 'user_id', 'id');
+    }
+
+    public function specialist(){
+        return $this->belongsTo(Doctor::class, 'specialist_id', 'id');
     }
 }

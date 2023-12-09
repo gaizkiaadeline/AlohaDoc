@@ -14,9 +14,10 @@ class DoctorSchedule extends Model
     protected $fillable = [
         'doctor_id',
         'schedule_id',
+        'isActive'
     ];
 
-    public function user(){
+    public function doctor(){
         return $this->belongsTo(User::class, 'doctor_id', 'id');
     }
 

@@ -106,6 +106,45 @@
         text-decoration: underline;
         cursor: pointer;
     }
+
+    label{
+        display: block;
+    }
+
+    .select2-container {
+        z-index: 10000;
+    }
+
+    .select2-container .select2-selection--single {
+        height: calc(2.25rem + 2px);
+        border: 1px solid #ced4da !important;
+    }
+
+    .select2-container .select2-selection--single .select2-selection__rendered {
+        line-height: 1.5;
+        padding: .375rem .75rem;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: calc(2.25rem + 2px);
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow b {
+        border-color: #555 transparent transparent transparent;
+        border-style: solid;
+        border-width: 5px 4px 0 4px;
+        height: 0;
+        left: 50%;
+        margin-left: -4px;
+        margin-top: -2px;
+        position: absolute;
+        top: 50%;
+        width: 0;
+    }
+
+    #specialistIdContainer .select2-container{
+        width: 100% !important;
+    }
 </style>
 @endsection
 
@@ -121,6 +160,24 @@
             $('#modalLoginLabel').text('Login Sebagai Pasien')
             $('#loginRole').val('patient')
         })
+        
+        $('#specialist').select2({
+            theme: "bootstrap",
+            dropdownParent: $('#modalLoginLabel'),
+            minimumResultsForSearch: 1
+        })
+
+        $('#specialistIdForm').css('display', 'none')
+
+        $('#role').on('change', function(){
+            if($(this).val() == 'doctor'){
+                $('#specialistIdForm').css('display', 'block')
+            }
+            else{
+                $('#specialistIdForm').css('display', 'none')
+            }
+        })
     })
+
 </script>
 @endsection

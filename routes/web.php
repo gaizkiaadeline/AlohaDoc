@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ConsultationController;
 use App\Http\Controllers\LoginRegisterController;
+use App\Http\Controllers\PusherController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -31,7 +32,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/', [ConsultationController::class, 'store'])->name('consultation.store');
         Route::get('/getSession', [ConsultationController::class, 'getSession'])->name('consultation.get-session');
         Route::get('/cancel/{consultation}', [ConsultationController::class, 'cancel'])->name('consultation.cancel');
-        Route::get('/do/{consultation}', [ConsultationController::class, 'do'])->name('consultation.do');
+        Route::get('/do/{consultationId}', [PusherController::class, 'index'])->name('consultation.do');
+        Route::post('/broadcast/{consultationId}', [PusherController::class, 'broadcast'])->name('broadcast');
+        Route::post('/receive/{consultationId}', [PusherController::class, 'receive'])->name('receive');
         Route::get('/activate/{consultation}/{setActive}', [ConsultationController::class, 'activateRequest'])->name('consultation.activate');
         Route::get('/createRecipe/{consultation}', [ConsultationController::class, 'createRecipe'])->name('consultation.create-recipe');
         Route::post('/storeRecipe/{consultation}', [ConsultationController::class, 'storeRecipe'])->name('consultation.store-recipe');

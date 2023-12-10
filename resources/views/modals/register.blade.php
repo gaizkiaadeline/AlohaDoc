@@ -1,8 +1,8 @@
-<div class="modal hide fade" id="modalRegiter">
+<div class="modal hide fade" id="modalRegister">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="modalRegiterLabel">Register</h1>
+                <h1 class="modal-title fs-5" id="modalRegisterLabel">Register</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
             <form action="{{ route('register') }}" method="post">

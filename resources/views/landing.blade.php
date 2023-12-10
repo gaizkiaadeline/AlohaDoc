@@ -46,7 +46,7 @@
             <div class="row mt-5 text-white">
                 <h3 class="fw-medium">
                     Belum punya akun?
-                    <span id="register" data-bs-toggle="modal" data-bs-target="#modalRegiter">
+                    <span id="register" data-bs-toggle="modal" data-bs-target="#modalRegister">
                         DAFTAR DI SINI!
                     </span>
                 </h3>
@@ -163,7 +163,7 @@
         
         $('#specialist').select2({
             theme: "bootstrap",
-            dropdownParent: $('#modalLoginLabel'),
+            dropdownParent: $('#modalRegister'),
             minimumResultsForSearch: 1
         })
 

@@ -7,6 +7,8 @@ use Carbon\Carbon;
 @section('title', 'Konsultasi - alohadoc')
 
 @section('content')
+<link rel="stylesheet" href="{{ asset('assets/css/chat.css') }}">
+
 <div class="chat">
 
     <div class="top">

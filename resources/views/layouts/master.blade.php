@@ -20,7 +20,6 @@
     
     <link rel="stylesheet" href="{{ asset('assets/css/font.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/app.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/chat.css') }}">
     @yield('extra-css')
 </head>
 <body>

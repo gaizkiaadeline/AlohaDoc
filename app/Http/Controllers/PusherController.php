@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\PusherBroadcast;
+use App\Interfaces\StatusInterface;
 use App\Models\Chat;
 use App\Models\Consultation;
 use App\Models\Doctor;
@@ -10,18 +11,27 @@ use App\Models\DoctorSchedule;
 use App\Models\Schedule;
 use App\Models\Session;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Broadcasting\Broadcasters\PusherBroadcaster;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Pusher\Pusher;
 
-class PusherController extends Controller
+class PusherController extends Controller implements StatusInterface
 {
-    public function index($consultationId) 
+    public function index(Consultation $consultationId) 
     {
-        $messages = Chat::where('consultation_id', $consultationId)->get();
+        if(Carbon::now() > $consultationId->doctor_schedule->schedule->session->end_time){
+            $consultationId->status = self::STATUS_MENUNGGU_RESEP;
+        }
+        else{
+            $consultationId->status = self::STATUS_KONSULTASI;
+            $consultationId->update();
+        }
 
-        $consultation = Consultation::findOrFail($consultationId);
+        $messages = Chat::where('consultation_id', $consultationId->id)->get();
+
+        $consultation = Consultation::findOrFail($consultationId->id);
         $doctorSchedule = DoctorSchedule::findOrFail($consultation->doctor_schedule_id);
         $schedule = Schedule::findOrFail($doctorSchedule->schedule_id);
         $session = Session::findOrFail($schedule->session_id);
@@ -31,18 +41,18 @@ class PusherController extends Controller
 
         if (count($messages) == 0) {
             $firstPatientChat = Chat::create([
-                'consultation_id' => $consultationId,
+                'consultation_id' => $consultationId->id,
                 'user_id' => $patient->id,
                 'content' => 'Halo, saya ingin berkonsultasi.'
             ]);
 
             $firstDoctorChat = Chat::create([
-                'consultation_id' => $consultationId,
+                'consultation_id' => $consultationId->id,
                 'user_id' => $doctor->id,
                 'content' => 'Halo, selamat datang di Alohadoc. Saya dokter ' . $doctor->name . '.'
             ]);
 
-            $messages = Chat::where('consultation_id', $consultationId)->get();
+            $messages = Chat::where('consultation_id', $consultationId->id)->get();
         }
 
         return view('chat', [

@@ -33,7 +33,15 @@ class LoginRegisterController extends Controller
     }
 
     public function loginProcess(LoginRequest $request){
-        if(User::where('email', $request->email)->where('role', $request->role)->first() && Auth::attempt(['email' => $request->email, 'password' => $request->password])){
+        $user = User::where('email', $request->email)
+                    ->where('role', $request->role)
+                    ->first();
+
+        if($user->is_active == 'Not Active'){
+            return redirect('/')->with('err', 'Akun anda berada dalam status tidak aktif, mohon hubungi admin untuk informasi lebih lanjut!');
+        }
+
+        if($user && Auth::attempt(['email' => $request->email, 'password' => $request->password])){
             return redirect('/consultation');
         }
         else{

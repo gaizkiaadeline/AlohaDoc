@@ -26,6 +26,7 @@ class User extends Authenticatable
         'role',
         'telephone',
         'password',
+        'is_active',
         'specialist_id'
     ];
 

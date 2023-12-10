@@ -284,19 +284,6 @@ class ConsultationController extends Controller implements StatusInterface
         return redirect()->route('consultation')->with('success', 'Request konsultasi berhasil dibatalkan!');
     }
 
-    public function do(Consultation $consultation) {
-        if(Carbon::now() > $consultation->doctor_schedule->schedule->session->end_time){
-            $consultation->status = self::STATUS_MENUNGGU_RESEP;
-        }
-        else{
-            $consultation->status = self::STATUS_KONSULTASI;
-        }
-        
-        $consultation->update();
-
-        return view('consultation.chat', compact('consultation'));
-    }
-
     public function activateRequest(Request $request, Consultation $consultation, $setActive){
         DB::beginTransaction();
         try{

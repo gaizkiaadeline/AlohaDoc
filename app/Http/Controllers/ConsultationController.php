@@ -115,7 +115,7 @@ class ConsultationController extends Controller implements StatusInterface
                     
                     if(in_array(Auth::user()->role, ['patient', 'doctor']) && $currentDate->diffInDays($p['consultation_date']) <= 0 && $currentDateTime >= $p['consultation_start'] && in_array($p['status'], [self::STATUS_BOOKED_TEXT, self::STATUS_KONSULTASI_TEXT, self::STATUS_MENUNGGU_RESEP_TEXT, self::STATUS_SELESAI_TEXT])){
                         array_push($returnedValue, [
-                            "route" => route('consultation.do', ['consultation' => $p['id']]),
+                            "route" => route('consultation.do', ['consultationId' => $p['id']]),
                             "attr_id" => $p['id'],
                             "icon" => 'fas fa-fw fa-stethoscope',
                             "label" => 'Konsultasi',

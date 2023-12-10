@@ -55,47 +55,40 @@ class ConsultationController extends Controller implements StatusInterface
             
             $currentDate = Carbon::today('Asia/Jakarta');
             $currentDateTime = Carbon::now('Asia/Jakarta');
-
+            $threeHoursAhead = $currentDateTime->copy()->addHours(3); // Use a copy to avoid modifying the original
+            
             $newConsultations = [];
-
+            
             foreach($consultations as $consultation){
-                // Change Status menjadi batal/ditolak jika masih request/booked tapi sudah melewati masa
-                if($currentDate->diffInDays($consultation['consultation_date']) == 0){
-                    if($currentDateTime->addHours(3) > $consultation['consultation_start'] && $consultation['status'] == self::STATUS_REQUEST_TEXT){
-                        try{
+                // Ensure 'consultation_start' and 'consultation_end' are Carbon instances or comparable strings
+                $consultationStart = Carbon::parse($consultation['consultation_start']);
+                $consultationEnd = Carbon::parse($consultation['consultation_end']);
+            
+                if($currentDate->diffInDays($consultation['consultation_date'], false) == 0){
+                    DB::beginTransaction();
+                    try {
+                        if($threeHoursAhead > $consultationStart && $consultation['status'] == self::STATUS_REQUEST_TEXT){
                             Consultation::find($consultation['id'])
-                                        ->update([
-                                            'status' => self::STATUS_DITOLAK
-                                        ]);
-                                        
+                                        ->update(['status' => self::STATUS_DITOLAK]);
                             $consultation['status'] = self::STATUS_DITOLAK_TEXT;
-
-                            DB::commit();
-                        } catch(\Exception $err){
-                            DB::rollBack();
-                            LogError::insertLogError($err->getMessage());
                         }
-                    }
-
-                    if($currentDateTime > $consultation['consultation_end'] && $consultation['status'] == self::STATUS_BOOKED_TEXT){
-                        try{
+            
+                        if($currentDateTime > $consultationEnd && $consultation['status'] == self::STATUS_BOOKED_TEXT){
                             Consultation::find($consultation['id'])
-                                        ->update([
-                                            'status' => self::STATUS_CANCEL
-                                        ]);
-                            
-                            $p['status'] = self::STATUS_CANCEL_TEXT;
-
-                            DB::commit();
-                        } catch(\Exception $err){
-                            DB::rollBack();
-                            LogError::insertLogError($err->getMessage());
+                                        ->update(['status' => self::STATUS_CANCEL]);
+                            $consultation['status'] = self::STATUS_CANCEL_TEXT;
                         }
+            
+                        DB::commit();
+                    } catch(\Exception $err){
+                        DB::rollBack();
+                        LogError::insertLogError($err->getMessage());
                     }
                 }
-
+            
                 $newConsultations[] = $consultation;
             }
+                        
 
             return DataTables::of($newConsultations)
                 ->editColumn('consultation_date', function ($p) {
@@ -220,7 +213,7 @@ class ConsultationController extends Controller implements StatusInterface
             $alreadyRequestedDoctorScheduleIds = Consultation::select('doctor_schedule_id')
                                                                 ->where('consultation_date', $date)
                                                                 ->where('patient_id', Auth::user()->id)
-                                                                ->where('status', '!=', self::STATUS_CANCEL)
+                                                                ->whereNotIn('status', [self::STATUS_CANCEL, self::STATUS_DITOLAK])
                                                                 ->get()
                                                                 ->pluck('doctor_schedule_id')
                                                                 ->values()
@@ -382,9 +375,13 @@ class ConsultationController extends Controller implements StatusInterface
                         ->where('days.name', $nameOfDay)
                         ->where(function ($query) use($chosenDate){
                             $currentDateTime = Carbon::now();
+                            $currentDateTime->modify("+6 hours");
+                            $timeStringForMySQL = $currentDateTime->format("H:i:s");
+                            $currentDateAsString = $currentDateTime->format("Y-m-d");
+                            $chosenDateParsed = Carbon::parse($chosenDate)->format('Y-m-d');
 
-                            if($currentDateTime->isSameDay(Carbon::parse($chosenDate))){
-                                $query->where('sessions.start_time', '>=', $currentDateTime->addHours(6));
+                            if($currentDateAsString == $chosenDateParsed){
+                                $query->where('sessions.start_time', '>=', $timeStringForMySQL);
                             }
                         })
                         ->whereNotIn('doctor_schedules.id', $bookedDoctorScheduleIds)

@@ -7,6 +7,8 @@ use App\Models\Chat;
 use App\Models\Consultation;
 use App\Models\Doctor;
 use App\Models\DoctorSchedule;
+use App\Models\Schedule;
+use App\Models\Session;
 use App\Models\User;
 use Illuminate\Broadcasting\Broadcasters\PusherBroadcaster;
 use Illuminate\Http\Request;
@@ -21,6 +23,8 @@ class PusherController extends Controller
 
         $consultation = Consultation::findOrFail($consultationId);
         $doctorSchedule = DoctorSchedule::findOrFail($consultation->doctor_schedule_id);
+        $schedule = Schedule::findOrFail($doctorSchedule->schedule_id);
+        $session = Session::findOrFail($schedule->session_id);
         $doctor = User::findOrFail($doctorSchedule->doctor_id);
         $patient = User::findOrFail($consultation->patient_id);
         $specialist = Doctor::findOrFail($doctor->specialist_id);
@@ -46,7 +50,9 @@ class PusherController extends Controller
             'consultation' => $consultation, 
             'doctor' => $doctor,
             'specialist' => $specialist,
-            'patient' => $patient
+            'patient' => $patient,
+            'session' => $session,
+            'schedule' => $schedule,
         ]);
     }
 

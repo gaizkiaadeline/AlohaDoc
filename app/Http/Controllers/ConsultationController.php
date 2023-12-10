@@ -85,6 +85,19 @@ class ConsultationController extends Controller implements StatusInterface
                         LogError::insertLogError($err->getMessage());
                     }
                 }
+                
+                if ($currentDateTime > $consultation->doctor_schedule->schedule->session->end_time && 
+                    $consultation['status'] == self::STATUS_KONSULTASI_TEXT) {
+                    DB::beginTransaction();
+                    try {
+                        $consultation['status'] = self::STATUS_MENUNGGU_RESEP_TEXT;
+                        Consultation::find($consultation['id'])->update(['status' => self::STATUS_MENUNGGU_RESEP]);
+                        DB::commit();
+                    } catch(\Exception $err){
+                        DB::rollBack();
+                        LogError::insertLogError($err->getMessage());
+                    }
+                }
             
                 $newConsultations[] = $consultation;
             }

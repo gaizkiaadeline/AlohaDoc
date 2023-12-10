@@ -20,6 +20,7 @@
     
     <link rel="stylesheet" href="{{ asset('assets/css/font.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/app.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/chat.css') }}">
     @yield('extra-css')
 </head>
 <body>
@@ -61,5 +62,7 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script src="{{ asset('assets/js/app.js') }}"></script>
+
+<script src="https://js.pusher.com/8.0.1/pusher.min.js"></script>
 
 @yield('extra-js')

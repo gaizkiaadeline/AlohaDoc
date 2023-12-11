@@ -64,9 +64,9 @@ class ConsultationController extends Controller implements StatusInterface
                 $consultationStart = Carbon::parse($consultation['consultation_start']);
                 $consultationEnd = Carbon::parse($consultation['consultation_end']);
             
-                if($currentDate->diffInDays($consultation['consultation_date'], false) == 0){
-                    DB::beginTransaction();
-                    try {
+                DB::beginTransaction();
+                try {
+                    if($currentDate->diffInDays($consultation['consultation_date'], false) == 0){
                         if($threeHoursAhead > $consultationStart && $consultation['status'] == self::STATUS_REQUEST_TEXT){
                             Consultation::find($consultation['id'])
                                         ->update(['status' => self::STATUS_DITOLAK]);
@@ -78,25 +78,25 @@ class ConsultationController extends Controller implements StatusInterface
                                         ->update(['status' => self::STATUS_CANCEL]);
                             $consultation['status'] = self::STATUS_CANCEL_TEXT;
                         }
-            
-                        DB::commit();
-                    } catch(\Exception $err){
-                        DB::rollBack();
-                        LogError::insertLogError($err->getMessage());
+
+                        if ($currentDateTime > $consultation->doctor_schedule->schedule->session->end_time && 
+                            $consultation['status'] == self::STATUS_KONSULTASI_TEXT) {
+                            $consultation['status'] = self::STATUS_MENUNGGU_RESEP_TEXT;
+                            Consultation::find($consultation['id'])
+                                    ->update(['status' => self::STATUS_MENUNGGU_RESEP]);
+                        }
                     }
-                }
-                
-                if ($currentDateTime > $consultation->doctor_schedule->schedule->session->end_time && 
-                    $consultation['status'] == self::STATUS_KONSULTASI_TEXT) {
-                    DB::beginTransaction();
-                    try {
+                    else if($currentDate->diffInDays($consultation['consultation_date'], false) < 0 && 
+                        $consultation['status'] == self::STATUS_KONSULTASI_TEXT){
                         $consultation['status'] = self::STATUS_MENUNGGU_RESEP_TEXT;
-                        Consultation::find($consultation['id'])->update(['status' => self::STATUS_MENUNGGU_RESEP]);
-                        DB::commit();
-                    } catch(\Exception $err){
-                        DB::rollBack();
-                        LogError::insertLogError($err->getMessage());
+                        Consultation::find($consultation['id'])
+                                ->update(['status' => self::STATUS_MENUNGGU_RESEP]);
                     }
+                    
+                    DB::commit();
+                } catch(\Exception $err){
+                    DB::rollBack();
+                    LogError::insertLogError($err->getMessage());
                 }
             
                 $newConsultations[] = $consultation;
